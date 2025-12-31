@@ -5,21 +5,38 @@
   <title>Food AR Demo</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- Model Viewer -->
+  <!-- Model Viewer Library (DO NOT CHANGE) -->
   <script type="module"
-    src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js">
+    src="https://cdn.jsdelivr.net/npm/@google/model-viewer/dist/model-viewer.min.js">
   </script>
 
   <style>
     body {
       margin: 0;
-      font-family: sans-serif;
+      font-family: Arial, sans-serif;
       background: #f7f7f7;
       text-align: center;
     }
+
+    h2 {
+      margin: 10px 0 5px;
+    }
+
+    h3 {
+      margin: 5px 0 10px;
+      color: #444;
+    }
+
     model-viewer {
       width: 100%;
-      height: 80vh;
+      height: 75vh;
+      background: #fff;
+    }
+
+    .hint {
+      font-size: 14px;
+      color: #666;
+      margin-bottom: 10px;
     }
   </style>
 </head>
@@ -27,18 +44,80 @@
 <body>
 
   <h2>🍔 Food AR Demo</h2>
+  <h3 id="foodName">Burger</h3>
 
+  <!-- 3D / AR Viewer -->
   <model-viewer
+    id="viewer"
     src="Burger_compressed.glb"
     ar
     ar-modes="scene-viewer quick-look webxr"
     camera-controls
     auto-rotate
     shadow-intensity="1"
-    alt="Burger in AR">
+    ar-scale="fixed"
+    alt="Food in AR">
   </model-viewer>
 
-  <p>Tap the AR button to view on your table</p>
+  <div class="hint">⬅️ Swipe left or right to change food</div>
+
+  <!-- Swipe Logic -->
+  <script>
+    // 1️⃣ List of models (FILENAMES MUST MATCH)
+    const models = [
+      "Burger_compressed.glb",
+      "Turkishfood_compressed.glb",
+    ];
+
+    // 2️⃣ Names shown on screen
+    const names = [
+      "Burger_compressed.glb",
+      "Turkishfood_compressed.glb",
+    ];
+
+    // 3️⃣ Track which model is active
+    let currentIndex = 0;
+
+    // 4️⃣ Get the model-viewer element
+    const viewer = document.getElementById("viewer");
+    const foodName = document.getElementById("foodName");
+
+    // 5️⃣ Swipe detection
+    let startX = 0;
+
+    viewer.addEventListener("touchstart", (e) => {
+      startX = e.touches[0].clientX;
+    });
+
+    viewer.addEventListener("touchend", (e) => {
+      const endX = e.changedTouches[0].clientX;
+      const diff = endX - startX;
+
+      if (Math.abs(diff) > 50) {
+        if (diff < 0) {
+          nextModel(); // swipe left
+        } else {
+          prevModel(); // swipe right
+        }
+      }
+    });
+
+    // 6️⃣ Change models
+    function nextModel() {
+      currentIndex = (currentIndex + 1) % models.length;
+      updateModel();
+    }
+
+    function prevModel() {
+      currentIndex = (currentIndex - 1 + models.length) % models.length;
+      updateModel();
+    }
+
+    function updateModel() {
+      viewer.src = models[currentIndex];
+      foodName.innerText = names[currentIndex];
+    }
+  </script>
 
 </body>
 </html>
