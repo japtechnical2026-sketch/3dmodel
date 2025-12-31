@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Food AR Demo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Model Viewer -->
+  <script type="module"
+    src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js">
+  </script>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: sans-serif;
+      background: #f7f7f7;
+      text-align: center;
+    }
+    model-viewer {
+      width: 100%;
+      height: 80vh;
+    }
+  </style>
+</head>
+
+<body>
+
+  <h2>🍔 Food AR Demo</h2>
+
+  <model-viewer
+    src="models/burger.glb"
+    ar
+    ar-modes="scene-viewer quick-look webxr"
+    camera-controls
+    auto-rotate
+    shadow-intensity="1"
+    alt="Burger in AR">
+  </model-viewer>
+
+  <p>Tap the AR button to view on your table</p>
+
+</body>
+</html>
