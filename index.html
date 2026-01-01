@@ -2,122 +2,165 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Food AR Demo</title>
+  <title>Food AR Preview</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- Model Viewer Library (DO NOT CHANGE) -->
+  <!-- Model Viewer -->
   <script type="module"
     src="https://cdn.jsdelivr.net/npm/@google/model-viewer/dist/model-viewer.min.js">
   </script>
 
   <style>
-    body {
+    html, body {
       margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
       font-family: Arial, sans-serif;
-      background: #f7f7f7;
+    }
+
+    /* Camera background */
+    video {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      z-index: 0;
+    }
+
+    /* Dark overlay for contrast */
+    .overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.35);
+      z-index: 1;
+    }
+
+    /* 3D Viewer */
+    model-viewer {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 2;
+      background: transparent;
+    }
+
+    /* UI */
+    .top {
+      position: fixed;
+      top: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      color: white;
+      z-index: 3;
       text-align: center;
     }
 
-    h2 {
-      margin: 10px 0 5px;
-    }
-
-    h3 {
-      margin: 5px 0 10px;
-      color: #444;
-    }
-
-    model-viewer {
-      width: 100%;
-      height: 75vh;
-      background-color: transparent;
-    }
-
-    .hint {
-      font-size: 14px;
-      color: #666;
-      margin-bottom: 10px;
+    .ar-btn {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 14px 24px;
+      font-size: 16px;
+      border-radius: 30px;
+      border: none;
+      background: #ff7a18;
+      color: white;
+      z-index: 3;
+      cursor: pointer;
     }
   </style>
 </head>
 
 <body>
 
-  <h2>🍔 Food AR Demo</h2>
-  <h3 id="foodName">Burger</h3>
+  <!-- Camera -->
+  <video id="camera" autoplay playsinline></video>
 
-  <!-- 3D / AR Viewer -->
+  <!-- Dark overlay -->
+  <div class="overlay"></div>
+
+  <!-- UI -->
+  <div class="top">
+    <h2>🍔 Food Preview</h2>
+    <div id="foodName">Burger</div>
+  </div>
+
+  <!-- 3D Overlay -->
   <model-viewer
-  id="viewer"
-  src="Burger_compressed.glb"
-  ar
-  ar-modes="webxr"
-  camera-controls
-  auto-rotate
-  shadow-intensity="0"
-  environment-image="neutral"
-  ar-scale="fixed"
-  alt="Food in AR">
-</model-viewer>
+    id="viewer"
+    src="Burger_compressed.glb"
+    camera-controls
+    auto-rotate
+    shadow-intensity="0"
+    exposure="1.1"
+    alt="Food preview">
+  </model-viewer>
 
-  <div class="hint">⬅️ Swipe left or right to change food</div>
+  <!-- AR Button -->
+  <button class="ar-btn" id="arButton">View in AR</button>
 
-  <!-- Swipe Logic -->
   <script>
-    // 1️⃣ List of models (FILENAMES MUST MATCH)
+    /* CAMERA START */
+    const video = document.getElementById("camera");
+
+    navigator.mediaDevices.getUserMedia({
+      video: { facingMode: "environment" },
+      audio: false
+    })
+    .then(stream => {
+      video.srcObject = stream;
+    })
+    .catch(err => {
+      alert("Camera access denied");
+      console.error(err);
+    });
+
+    /* MODEL SWITCHING */
     const models = [
       "Burger_compressed.glb",
-      "Turkishfood_compressed.glb",
+      "Turkishfood_compressed.glb"
     ];
 
-    // 2️⃣ Names shown on screen
     const names = [
-      "Burger_compressed.glb",
-      "Turkishfood_compressed.glb",
+      "Burger",
+      "Turkish Food"
     ];
 
-    // 3️⃣ Track which model is active
-    let currentIndex = 0;
-
-    // 4️⃣ Get the model-viewer element
+    let index = 0;
     const viewer = document.getElementById("viewer");
     const foodName = document.getElementById("foodName");
 
-    // 5️⃣ Swipe detection
     let startX = 0;
 
-    viewer.addEventListener("touchstart", (e) => {
+    viewer.addEventListener("touchstart", e => {
       startX = e.touches[0].clientX;
     });
 
-    viewer.addEventListener("touchend", (e) => {
-      const endX = e.changedTouches[0].clientX;
-      const diff = endX - startX;
-
+    viewer.addEventListener("touchend", e => {
+      const diff = e.changedTouches[0].clientX - startX;
       if (Math.abs(diff) > 50) {
-        if (diff < 0) {
-          nextModel(); // swipe left
-        } else {
-          prevModel(); // swipe right
-        }
+        index = diff < 0
+          ? (index + 1) % models.length
+          : (index - 1 + models.length) % models.length;
+        viewer.src = models[index];
+        foodName.innerText = names[index];
       }
     });
 
-    // 6️⃣ Change models
-    function nextModel() {
-      currentIndex = (currentIndex + 1) % models.length;
-      updateModel();
-    }
-
-    function prevModel() {
-      currentIndex = (currentIndex - 1 + models.length) % models.length;
-      updateModel();
-    }
-
-    function updateModel() {
-      viewer.src = models[currentIndex];
-      foodName.innerText = names[currentIndex];
-    }
+    /* AR HANDOFF */
+    document.getElementById("arButton").onclick = () => {
+      viewer.activateAR();
+    };
   </script>
 
 </body>
