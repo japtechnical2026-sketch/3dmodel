@@ -97,14 +97,16 @@
 
   <!-- 3D Overlay -->
   <model-viewer
-    id="viewer"
-    src="Burger_compressed.glb"
-    camera-controls
-    auto-rotate
-    shadow-intensity="0"
-    exposure="1.1"
-    alt="Food preview">
-  </model-viewer>
+  id="viewer"
+  src="Burger_compressed.glb"
+  ar
+  ar-modes="scene-viewer quick-look"
+  camera-controls
+  auto-rotate
+  shadow-intensity="0"
+  exposure="1.1"
+  alt="Food preview">
+</model-viewer>
 
   <!-- AR Button -->
   <button class="ar-btn" id="arButton">View in AR</button>
@@ -128,12 +130,22 @@
     /* MODEL SWITCHING */
     const models = [
       "Burger_compressed.glb",
-      "Turkishfood_compressed.glb"
+      "Turkishfood_compressed.glb",
+      "Burger.glb",
+      "Chicken_Strips.glb",
+      "Cookie.glb",
+      "CupCake.glb",
+      "sushi.glb"
     ];
 
     const names = [
       "Burger",
-      "Turkish Food"
+      "Turkish Food",
+      "Burger2",
+      "Chicken Strip",
+      "Cookie",
+      "CupCake",
+      "Sushi"
     ];
 
     let index = 0;
